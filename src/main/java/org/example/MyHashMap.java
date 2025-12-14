@@ -5,7 +5,7 @@ import java.util.*;
 public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
     private class MyIterator implements Iterator<KeyValuePair<K,V>> {
         private KeyValuePair<K,V>[] array = toArray();
-        private int index = 0;
+        private int index = -1;
 
         @Override
         public boolean hasNext() {
@@ -18,7 +18,7 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
                 throw new NoSuchElementException();
             }
 
-            return array[index++];
+            return array[++index];
         }
 
         @Override

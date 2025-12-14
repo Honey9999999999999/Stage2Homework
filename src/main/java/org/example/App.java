@@ -10,11 +10,15 @@ public class App
     {
         Random random = new Random();
 
-        for (int i = 0; i < 91; i++){
+        for (int i = 0; i < 5; i++){
             int rnd = random.nextInt(100);
             hashMap.add("Key#" + rnd, "Value#" + rnd);
         }
 
         System.out.println(hashMap);
+
+        for (KeyValuePair<String, String> kvp : hashMap){
+            System.out.println("K:" + kvp.key + "|V:" + kvp.value);
+        }
     }
 }
