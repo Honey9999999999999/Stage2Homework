@@ -174,6 +174,10 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
     }
 
     private int getHashKey(Object obj){
+        if(obj == null){
+            throw new NullPointerException("Key is null");
+        }
+
         int h = obj.hashCode();
         return  h ^ h >>> 16;
     }
