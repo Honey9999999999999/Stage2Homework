@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class App
@@ -14,6 +15,8 @@ public class App
             int rnd = random.nextInt(100);
             hashMap.add("Key#" + rnd, "Value#" + rnd);
         }
+
+        hashMap.add(null, "JOJO");
 
         System.out.println(hashMap);
 

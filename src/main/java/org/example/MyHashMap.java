@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
     private class MyIterator implements Iterator<KeyValuePair<K,V>> {
@@ -42,7 +43,7 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
         return new MyIterator();
     }
 
-    public KeyValuePair<K,V> get(int index){
+    public KeyValuePair<K,V> getByIndex(int index){
         return toArray()[index];
     }
     public KeyValuePair<K,V>[] toArray() {
@@ -58,6 +59,33 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
         return array;
     }
 
+    public V getByKey(K key) {
+        KeyValuePair<K,V> pair = findPair(key);
+        if(pair != null){
+            return pair.value;
+        }
+
+        throw new NullPointerException("Key is not found in list");
+    }
+
+    private MyLinkedList<KeyValuePair<K,V>> getBucket(K key) {
+        int hash = getHashKey(key);
+        int index = getIndex(hash);
+        return buckets.get(index);
+    }
+
+    private KeyValuePair<K,V> findPair(K key) {
+        int hash = getHashKey(key);
+        MyLinkedList<KeyValuePair<K,V>> list = getBucket(key);
+
+        for (KeyValuePair<K,V> item : list) {
+            if (isEquals(hash, key, item.key)) {
+                return item; // Найдена нужная пара
+            }
+        }
+        return null;
+    }
+
     public boolean addAll(Collection<KeyValuePair<K, V>> c) {
         for (KeyValuePair<K, V> obj : c){
             if(!add(obj.key, obj.value)){
@@ -67,24 +95,21 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
         return true;
     }
     public boolean add(K key, V value) {
-        int hash = getHashKey(key);
-        int index = getIndex(hash);
-        MyLinkedList<KeyValuePair<K,V>> list = buckets.get(index);
+        MyLinkedList<KeyValuePair<K,V>> bucket = getBucket(key);
+        KeyValuePair<K,V> pair = findPair(key);
 
-        for (KeyValuePair<K,V> item : list){
-            if(isEquals(hash, key, item.key)){
-                if(list.remove(item)){
-                    list.add(new KeyValuePair<>(key, value));
+        if(pair != null){
+            if(bucket.remove(pair)){
+                bucket.add(new KeyValuePair<>(key, value));
 
-                    return true;
-                }
-                else {
-                    return  false;
-                }
+                return true;
+            }
+            else {
+                return  false;
             }
         }
 
-        list.add(new KeyValuePair<>(key, value));
+        bucket.add(new KeyValuePair<>(key, value));
 
         if(capacity * .75f <= ++size){
             resize();
@@ -132,17 +157,14 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
         return true;
     }
     public boolean remove(K key) {
-        int hash = getHashKey(key);
-        int index = getIndex(hash);
-        MyLinkedList<KeyValuePair<K,V>> list = buckets.get(index);
+        MyLinkedList<KeyValuePair<K,V>> bucket = getBucket(key);
+        KeyValuePair<K,V> pair = findPair(key);
 
-        for (KeyValuePair<K,V> item : list){
-            if(isEquals(hash, key, item.key)) {
-                list.remove(item);
-                size--;
+        if(pair != null){
+            bucket.remove(pair);
+            size--;
 
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -175,7 +197,7 @@ public class MyHashMap<K,V> implements Iterable<KeyValuePair<K,V>>{
 
     private int getHashKey(Object obj){
         if(obj == null){
-            throw new NullPointerException("Key is null");
+            return 0;
         }
 
         int h = obj.hashCode();
